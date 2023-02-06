@@ -8,20 +8,26 @@
 <link href="style.css" rel="stylesheet" type="text/css"/>
 </head>
 <body>
-	<p id="question" class="question"> Which is the correct option? </p>
-	<div id="options-wrapper">
-		
-	</div>
+	<div class="container">
+		<div id="loader" class="loader-container d-flex">
+			<div class="loader"></div>
+		</div>
+	
+		<p id="question" class="question"> </p>
+		<div id="options-wrapper" class="options-container">
+			
+		</div>
+	
+		<button id="evaluate" onclick="handleEvaluation()">Evaluate!</button>
+		<div id="evaluation-message"></div>
+	
+		<button id="next" onClick="handleNextQuestion()" class="d-flex">Next random question</button>
+		<button id="finish" onClick="handleFinish()" class="d-none">Finish</button>
 
-	<button id="evaluate" onclick="myEvaluation()">Evaluate!</button>
-	<div id="evaluation-message"></div>
-
-	<button id="next" onClick="window.location.reload();" style="display:none;">Next random question</button>
-
-    <script async defer src="https://apis.google.com/js/api.js"
-      onload="this.onload=function(){};handleClientLoad()"
-      onreadystatechange="if (this.readyState === 'complete') this.onload()">
-    </script>
+	<script async defer src="https://apis.google.com/js/api.js"
+		onload="this.onload=function(){};handleClientLoad()"
+		onreadystatechange="if (this.readyState === 'complete') this.onload()">
+	</script>
 
 </body>
 </html>
