@@ -87,6 +87,8 @@ const getExerciseData = () => {
 };
 
 const init = () => {
+  console.log(unanswerdQuestions, "unanswerdQuestions");
+
   // Get random question
   const randomIndex = Math.floor(Math.random() * unanswerdQuestions.length);
   randomQuestion = unanswerdQuestions[randomIndex];
@@ -102,23 +104,36 @@ const init = () => {
   let optionsContainer = document.querySelector("#options-wrapper");
   optionsContainer.innerHTML = "";
   for (let i = 0; i < options.length; i++) {
-    optionsContainer.innerHTML += `<div id='option' onClick="toggleChoice(${i})" class='unchosen option'><p class='text'>${options[i]}</p></div>`;
+    optionsContainer.innerHTML += `<div id='option${i}' onClick="toggleChoice(${i})" class='unchosen option'><p class='text'>${options[i]}</p></div>`;
   }
 };
 
 function toggleChoice(clickedOptionIndex) {
   chosenAnswerIndex = clickedOptionIndex;
+
+	// Add "chosen" class to the selected option 
+	let chosenOptionElement = document.querySelector(`#option${chosenAnswerIndex}`);
+	chosenOptionElement.classList.add("chosen")
 }
 
 function handleEvaluation() {
-  if (chosenAnswerIndex == randomQuestion.answerIndex) {
-    // color the button with green
-    // calculate the score
-    console.log("CORRECT");
+	let chosenOptionElement = document.querySelector(`#option${chosenAnswerIndex}`);
+	let correctOptionElement = document.querySelector(`#option${randomQuestion.answerIndex}`);
+  
+	// if selected option is correct add color green to the border,
+	// otherwise add color red to the selected option and show which option is correct with border green 
+	if (chosenAnswerIndex == randomQuestion.answerIndex) {
+		chosenOptionElement.classList.add("option-green")
+		userTotalScore += Number(randomQuestion.score);
   } else {
-		// color the button with red
-    console.log("INCORRECT");
+		chosenOptionElement.classList.add("option-red");
+		correctOptionElement.classList.add("option-green")
   }
+
+	// TODO: Make evaluate button disabled 
+  document.addEventListener("DOMContentLoaded", function (event) {
+    document.getElementById("evaluate").disabled = true;
+  });
 
   // Add evaluated question in answeredQuestion array
   answeredQuestion.push(randomQuestion);
@@ -130,12 +145,12 @@ function handleEvaluation() {
   unanswerdQuestions = filtredQuestions;
 
   // Replace next button with finish button when arriving to the last question from unanswerdQuestions array
-  let next = document.querySelector("#next");
-  let finish = document.querySelector("#finish");
+  let nextBtn = document.querySelector("#next");
+  let finishBtn = document.querySelector("#finish");
   if (unanswerdQuestions.length === 0) {
-		next.classList.remove("d-flex");
-    next.classList.add("d-none");
-    finish.classList.add("d-flex");
+    nextBtn.classList.remove("d-flex");
+    nextBtn.classList.add("d-none");
+    finishBtn.classList.add("d-flex");
   }
 }
 
@@ -143,6 +158,10 @@ const handleNextQuestion = () => {
   init();
 };
 
+/** Display the final score when pressing finish button */
 const handleFinish = () => {
-  // TODO
-}
+  let scoreContainer = document.querySelector("#score-container");
+  let totalScore = document.querySelector("#score");
+  scoreContainer.classList.remove("d-none");
+  totalScore.innerHTML = userTotalScore;
+};
