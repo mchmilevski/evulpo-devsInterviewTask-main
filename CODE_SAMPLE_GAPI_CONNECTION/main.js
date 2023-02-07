@@ -6,13 +6,11 @@ const DISCOVERY_DOCS = [
   "https://sheets.googleapis.com/$discovery/rest?version=v4",
 ];
 const SCOPES = "https://www.googleapis.com/auth/spreadsheets.readonly";
-let questionId;
 let answeredQuestion = [];
 let unanswerdQuestions = [];
-let correctAnswerIndex;
+let userTotalScore = 0;
 let chosenAnswerIndex;
 let randomQuestion;
-let userTotalScore = 0;
 
 const hideLoader = () => {
   let loader = document.querySelector("#loader");
@@ -74,7 +72,7 @@ const getExerciseData = () => {
     })
     .then((response) => {
       const apiResponse = response.result.values;
-      // Create the data format
+      // Create data format
       constructApiData(apiResponse);
       // Initialize
       init();
@@ -82,13 +80,12 @@ const getExerciseData = () => {
       hideLoader();
     })
     .catch((error) => {
+      hideLoader();
       console.log("Error: " + error.message);
     });
 };
 
 const init = () => {
-  console.log(unanswerdQuestions, "unanswerdQuestions");
-
   // Get random question
   const randomIndex = Math.floor(Math.random() * unanswerdQuestions.length);
   randomQuestion = unanswerdQuestions[randomIndex];
@@ -102,7 +99,8 @@ const init = () => {
 
   // Update DOM with question options
   let optionsContainer = document.querySelector("#options-wrapper");
-  optionsContainer.innerHTML = "";
+  
+	optionsContainer.innerHTML = "";
   for (let i = 0; i < options.length; i++) {
     optionsContainer.innerHTML += `<div id='option${i}' onClick="toggleChoice(${i})" class='unchosen option'><p class='text'>${options[i]}</p></div>`;
   }
@@ -111,29 +109,40 @@ const init = () => {
 function toggleChoice(clickedOptionIndex) {
   chosenAnswerIndex = clickedOptionIndex;
 
-	// Add "chosen" class to the selected option 
-	let chosenOptionElement = document.querySelector(`#option${chosenAnswerIndex}`);
-	chosenOptionElement.classList.add("chosen")
+  // Add "chosen" class to the selected option
+  let chosenOptionElement = document.querySelector(
+    `#option${chosenAnswerIndex}`
+  );
+  chosenOptionElement.classList.add("chosen");
 }
 
 function handleEvaluation() {
-	let chosenOptionElement = document.querySelector(`#option${chosenAnswerIndex}`);
-	let correctOptionElement = document.querySelector(`#option${randomQuestion.answerIndex}`);
-  
-	// if selected option is correct add color green to the border,
-	// otherwise add color red to the selected option and show which option is correct with border green 
-	if (chosenAnswerIndex == randomQuestion.answerIndex) {
-		chosenOptionElement.classList.add("option-green")
-		userTotalScore += Number(randomQuestion.score);
-  } else {
-		chosenOptionElement.classList.add("option-red");
-		correctOptionElement.classList.add("option-green")
-  }
+  let chosenOptionElement = document.querySelector(
+    `#option${chosenAnswerIndex}`
+  );
+  let correctOptionElement = document.querySelector(
+    `#option${randomQuestion.answerIndex}`
+  );
+  let nextBtn = document.querySelector("#next");
+  let finishBtn = document.querySelector("#finish");
+  let evaluateBtn = document.querySelector("#evaluate");
 
-	// TODO: Make evaluate button disabled 
-  document.addEventListener("DOMContentLoaded", function (event) {
-    document.getElementById("evaluate").disabled = true;
-  });
+  // Hide evaluate button and show next button
+  evaluateBtn.classList.add("d-none");
+  evaluateBtn.classList.remove("d-flex");
+
+  nextBtn.classList.remove("d-none");
+  nextBtn.classList.add("d-flex");
+
+  // if selected option is correct add color green to the border,
+  // otherwise add color red to the selected option and show which option is correct with border green
+  if (chosenAnswerIndex == randomQuestion.answerIndex) {
+    chosenOptionElement.classList.add("option-green");
+    userTotalScore += Number(randomQuestion.score);
+  } else {
+    chosenOptionElement.classList.add("option-red");
+    correctOptionElement.classList.add("option-green");
+  }
 
   // Add evaluated question in answeredQuestion array
   answeredQuestion.push(randomQuestion);
@@ -145,8 +154,6 @@ function handleEvaluation() {
   unanswerdQuestions = filtredQuestions;
 
   // Replace next button with finish button when arriving to the last question from unanswerdQuestions array
-  let nextBtn = document.querySelector("#next");
-  let finishBtn = document.querySelector("#finish");
   if (unanswerdQuestions.length === 0) {
     nextBtn.classList.remove("d-flex");
     nextBtn.classList.add("d-none");
@@ -154,7 +161,18 @@ function handleEvaluation() {
   }
 }
 
+/** Hide next button and show evaluate button
+ * Update the UI with new question */
 const handleNextQuestion = () => {
+  let nextBtn = document.querySelector("#next");
+  let evaluateBtn = document.querySelector("#evaluate");
+
+  evaluateBtn.classList.remove("d-none");
+  evaluateBtn.classList.add("d-flex");
+
+  nextBtn.classList.remove("d-flex");
+  nextBtn.classList.add("d-none");
+
   init();
 };
 
@@ -162,6 +180,7 @@ const handleNextQuestion = () => {
 const handleFinish = () => {
   let scoreContainer = document.querySelector("#score-container");
   let totalScore = document.querySelector("#score");
-  scoreContainer.classList.remove("d-none");
+  
+	scoreContainer.classList.remove("d-none");
   totalScore.innerHTML = userTotalScore;
 };
