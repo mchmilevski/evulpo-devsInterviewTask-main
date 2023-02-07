@@ -11,6 +11,7 @@ let unanswerdQuestions = [];
 let userTotalScore = 0;
 let chosenAnswerIndex;
 let randomQuestion;
+let totalQuestionsNumber = 0;
 
 const hideLoader = () => {
   let loader = document.querySelector("#loader");
@@ -72,8 +73,10 @@ const getExerciseData = () => {
     })
     .then((response) => {
       const apiResponse = response.result.values;
-      // Create data format
-      constructApiData(apiResponse);
+			
+			totalQuestionsNumber = apiResponse.length - 1;
+
+			constructApiData(apiResponse);
       displayRandomQuestion();
       hideLoader();
     })
@@ -84,6 +87,8 @@ const getExerciseData = () => {
 };
 
 const displayRandomQuestion = () => {
+	chosenAnswerIndex = undefined;
+
   // Get random question
   const randomIndex = Math.floor(Math.random() * unanswerdQuestions.length);
   randomQuestion = unanswerdQuestions[randomIndex];
@@ -91,12 +96,20 @@ const displayRandomQuestion = () => {
   // Create options array
   const options = randomQuestion.answerOptions.split(";");
 
+	// Update DOM with topic
+	const topicElement = document.querySelector("#topic");
+	topicElement.innerHTML = randomQuestion.topic;
+
+	// Update DOM with preogress
+	const progressElement = document.querySelector("#progress");
+	progressElement.innerHTML = answeredQuestion.length + 1 + '/' + totalQuestionsNumber
+
   // Update DOM with question
-  let questionElement = document.querySelector("#question");
+  const questionElement = document.querySelector("#question");
   questionElement.innerHTML = randomQuestion.question;
 
   // Update DOM with question options
-  let optionsContainer = document.querySelector("#options-wrapper");
+  const optionsContainer = document.querySelector("#options-wrapper");
 
   optionsContainer.innerHTML = "";
   for (let i = 0; i < options.length; i++) {
@@ -108,32 +121,38 @@ const displayRandomQuestion = () => {
  * Remember the newly chosen answer index
  * Attach chosen CSS class to the newly selected option */
 function toggleChoice(newChosenAnswerIndex) {
-  if (chosenAnswerIndex !== undefined) {
-    let previousChosenOptionElement = document.querySelector(
-      `#option${chosenAnswerIndex}`
-    );
+	const previousChosenOptionElement = document.querySelector(
+		`#option${chosenAnswerIndex}`
+	);
+
+  if (previousChosenOptionElement) {
     previousChosenOptionElement.classList.remove("chosen");
     previousChosenOptionElement.classList.add("unchosen");
   }
 
   chosenAnswerIndex = newChosenAnswerIndex;
 
-  let chosenOptionElement = document.querySelector(
+  const chosenOptionElement = document.querySelector(
     `#option${chosenAnswerIndex}`
   );
   chosenOptionElement.classList.add("chosen");
 }
 
 function handleEvaluation() {
-  let chosenOptionElement = document.querySelector(
+  const chosenOptionElement = document.querySelector(
     `#option${chosenAnswerIndex}`
   );
-  let correctOptionElement = document.querySelector(
+
+	if (!chosenOptionElement) {
+		return;
+	}
+
+  const correctOptionElement = document.querySelector(
     `#option${randomQuestion.answerIndex}`
   );
-  let nextBtn = document.querySelector("#next");
-  let finishBtn = document.querySelector("#finish");
-  let evaluateBtn = document.querySelector("#evaluate");
+  const nextBtn = document.querySelector("#next");
+  const finishBtn = document.querySelector("#finish");
+  const evaluateBtn = document.querySelector("#evaluate");
 
   // Hide evaluate button and show next button
   evaluateBtn.classList.add("d-none");
@@ -172,8 +191,8 @@ function handleEvaluation() {
 /** Hide next button and show evaluate button
  * Update the UI with new question */
 const handleNextQuestion = () => {
-  let nextBtn = document.querySelector("#next");
-  let evaluateBtn = document.querySelector("#evaluate");
+  const nextBtn = document.querySelector("#next");
+  const evaluateBtn = document.querySelector("#evaluate");
 
   evaluateBtn.classList.remove("d-none");
   evaluateBtn.classList.add("d-flex");
@@ -186,8 +205,8 @@ const handleNextQuestion = () => {
 
 /** Display the final score when pressing finish button */
 const handleFinish = () => {
-  let scoreContainer = document.querySelector("#score-container");
-  let totalScore = document.querySelector("#score");
+  const scoreContainer = document.querySelector("#score-container");
+  const totalScore = document.querySelector("#score");
 
   scoreContainer.classList.remove("d-none");
   totalScore.innerHTML = userTotalScore;
