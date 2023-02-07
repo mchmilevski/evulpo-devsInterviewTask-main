@@ -74,9 +74,7 @@ const getExerciseData = () => {
       const apiResponse = response.result.values;
       // Create data format
       constructApiData(apiResponse);
-      // Initialize
-      init();
-      // Hide loader
+      displayRandomQuestion();
       hideLoader();
     })
     .catch((error) => {
@@ -85,7 +83,7 @@ const getExerciseData = () => {
     });
 };
 
-const init = () => {
+const displayRandomQuestion = () => {
   // Get random question
   const randomIndex = Math.floor(Math.random() * unanswerdQuestions.length);
   randomQuestion = unanswerdQuestions[randomIndex];
@@ -99,17 +97,27 @@ const init = () => {
 
   // Update DOM with question options
   let optionsContainer = document.querySelector("#options-wrapper");
-  
-	optionsContainer.innerHTML = "";
+
+  optionsContainer.innerHTML = "";
   for (let i = 0; i < options.length; i++) {
     optionsContainer.innerHTML += `<div id='option${i}' onClick="toggleChoice(${i})" class='unchosen option'><p class='text'>${options[i]}</p></div>`;
   }
 };
 
-function toggleChoice(clickedOptionIndex) {
-  chosenAnswerIndex = clickedOptionIndex;
+/** Remove chosen CSS class from previous chosen option
+ * Remember the newly chosen answer index
+ * Attach chosen CSS class to the newly selected option */
+function toggleChoice(newChosenAnswerIndex) {
+  if (chosenAnswerIndex !== undefined) {
+    let previousChosenOptionElement = document.querySelector(
+      `#option${chosenAnswerIndex}`
+    );
+    previousChosenOptionElement.classList.remove("chosen");
+    previousChosenOptionElement.classList.add("unchosen");
+  }
 
-  // Add "chosen" class to the selected option
+  chosenAnswerIndex = newChosenAnswerIndex;
+
   let chosenOptionElement = document.querySelector(
     `#option${chosenAnswerIndex}`
   );
@@ -173,14 +181,14 @@ const handleNextQuestion = () => {
   nextBtn.classList.remove("d-flex");
   nextBtn.classList.add("d-none");
 
-  init();
+  displayRandomQuestion();
 };
 
 /** Display the final score when pressing finish button */
 const handleFinish = () => {
   let scoreContainer = document.querySelector("#score-container");
   let totalScore = document.querySelector("#score");
-  
-	scoreContainer.classList.remove("d-none");
+
+  scoreContainer.classList.remove("d-none");
   totalScore.innerHTML = userTotalScore;
 };
