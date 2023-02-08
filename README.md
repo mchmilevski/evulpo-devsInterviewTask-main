@@ -40,7 +40,7 @@ If we want to insert a new text in the database and translate it into all the ot
 
 When we want to delete a translation that is not used anymore, we can search for the id and delete it together with it's children (rows that have parent_id=id)
 
-## Udating a translation
+## Updating a translation
 
 If we need to update the original language, we update the text of it, delete it's children and simulate the insertion step from above.
 
